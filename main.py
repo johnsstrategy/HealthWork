@@ -21,7 +21,6 @@ def setup():
 setup()
 app = FastAPI()
 
-# Funktion zum Übersetzen
 def translate(englischer_text):
     try:
         deutscher_text = deepl_client.translate_text(englischer_text, target_lang="DE")
@@ -56,12 +55,3 @@ def get_random_quote(kategorie: str = "motivational", max_laenge: int = 120):
         "tags": data["tags"],
         "laenge": data["length"]
     }
-
-def translate(englischer_text):
-    try:
-        deutscher_text = deepl_client.translate_text(englischer_text, target_lang="DE")
-
-    except Exception:
-        deutscher_text = f"(Übersetzung fehlgeschlagen) {englischer_text}"
-
-    return deutscher_text.text
