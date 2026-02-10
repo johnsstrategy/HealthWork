@@ -38,8 +38,8 @@ def read_root():
 
 # Random Zitat abrufen
 @app.get("/quote")
-def get_random_quote(kategorie: str = "motivational"):
-    url = f"https://api.quotable.io/random?tags={kategorie}"
+def get_random_quote(kategorie: str = "motivational", max_laenge: int = 120):
+    url = f"https://api.quotable.io/random?tags={kategorie}&maxLength={max_laenge}"
 
     response = requests.get(url, verify=False)
 
@@ -49,10 +49,9 @@ def get_random_quote(kategorie: str = "motivational"):
     data = response.json()
 
     zitat = translate(data["content"])
-    autor = translate(data["author"])
-
     return {
-        "autor": autor,
+        "autor": data["author"],
         "zitat": zitat,
-        "tags": data["tags"]
+        "tags": data["tags"],
+        "laenge": data["length"]
     }
