@@ -5,24 +5,24 @@ import urllib3
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
-# Warnings ausschalten
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+deepl_client = None
 
-# API Key laden / DEEPL anmeldung
-load_dotenv()
-auth_key = os.getenv("DEEPL_API_KEY")
+def setup():
+    global deepl_client
 
-if not auth_key:
-    raise ValueError("Kein DeepL API Key angegeben.")
+    load_dotenv()
+    auth_key = os.getenv("DEEPL_API_KEY")
+    if not auth_key:
+        raise ValueError("Kein DeepL API Key angegeben.")
 
-deepl_client = deepl.DeepLClient(auth_key)
+    deepl_client = deepl.DeepLClient(auth_key)
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# API initialisieren
+setup()
 app = FastAPI()
 
 # Funktion zum Übersetzen
 def translate(englischer_text):
-    print(englischer_text)
     try:
         deutscher_text = deepl_client.translate_text(englischer_text, target_lang="DE")
 
@@ -52,6 +52,16 @@ def get_random_quote(kategorie: str = "motivational", max_laenge: int = 120):
     return {
         "autor": data["author"],
         "zitat": zitat,
+        "original_zitat": data["content"],
         "tags": data["tags"],
         "laenge": data["length"]
     }
+
+def translate(englischer_text):
+    try:
+        deutscher_text = deepl_client.translate_text(englischer_text, target_lang="DE")
+
+    except Exception:
+        deutscher_text = f"(Übersetzung fehlgeschlagen) {englischer_text}"
+
+    return deutscher_text.text
