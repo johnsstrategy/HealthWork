@@ -22,6 +22,7 @@ app = FastAPI()
 
 # Funktion zum Übersetzen
 def translate(englischer_text):
+    print(englischer_text)
     try:
         deutscher_text = deepl_client.translate_text(englischer_text, target_lang="DE")
 
@@ -37,10 +38,14 @@ def read_root():
 
 # Random Zitat abrufen
 @app.get("/quote")
-def get_random_quote():
-    url = "https://api.quotable.io/random"
+def get_random_quote(kategorie: str = "motivational"):
+    url = f"https://api.quotable.io/random?tags={kategorie}"
 
     response = requests.get(url, verify=False)
+
+    if response.status_code != 200:
+        return {"error": "Kategorie nicht gefunden oder API-Fehler"}
+
     data = response.json()
 
     zitat = translate(data["content"])
@@ -48,5 +53,6 @@ def get_random_quote():
 
     return {
         "autor": autor,
-        "zitat": zitat
+        "zitat": zitat,
+        "tags": data["tags"]
     }
